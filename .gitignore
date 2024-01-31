@@ -2,6 +2,9 @@
 LocalConfig.cmake
 src/colmap/util/version.cc
 
+#swap files
+*.swp
+
 # Custom directories
 .idea/
 .vscode

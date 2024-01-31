@@ -107,6 +107,9 @@ IncrementalMapper::IncrementalMapper(
 
 void IncrementalMapper::BeginReconstruction(
     const std::shared_ptr<Reconstruction>& reconstruction) {
+    
+  std::cout << "=== Entered IncrementalMapper::BeginReconstruction ===" << std:: endl;
+
   CHECK(reconstruction_ == nullptr);
   reconstruction_ = reconstruction;
   reconstruction_->Load(*database_cache_);
@@ -129,6 +132,8 @@ void IncrementalMapper::BeginReconstruction(
 
   filtered_images_.clear();
   num_reg_trials_.clear();
+
+  std::cout  << "=== Exiting IncrementalMapper::BeginReconstruction ===" << std:: endl;
 }
 
 void IncrementalMapper::EndReconstruction(const bool discard) {

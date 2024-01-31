@@ -28,8 +28,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "colmap/util/threading.h"
-
 #include "colmap/util/logging.h"
+//#include <boost/stacktrace.hpp>
+
 
 namespace colmap {
 
@@ -46,6 +47,10 @@ Thread::Thread()
 }
 
 void Thread::Start() {
+
+  //std::cout << " === Inside Thread Start ===" << std::endl;
+  //std::cout << boost::stacktrace::stacktrace() << std::endl;
+    
   std::unique_lock<std::mutex> lock(mutex_);
   CHECK(!started_ || finished_);
   Wait();
@@ -58,6 +63,8 @@ void Thread::Start() {
   finished_ = false;
   setup_ = false;
   setup_valid_ = false;
+
+  //std::cout << "=== Exiting Thread Start ===" << std::endl; 
 }
 
 void Thread::Stop() {
@@ -123,10 +130,18 @@ void Thread::RegisterCallback(const int id) {
 }
 
 void Thread::Callback(const int id) const {
+  
+  std::cout << "=== Inside callback  with id: " << id << " ===" << std::endl;
+  
   CHECK_GT(callbacks_.count(id), 0) << "Callback not registered";
+  std::cout << "Starting the for loop!" << std::endl;
+  
   for (const auto& callback : callbacks_.at(id)) {
+    std::cout << "id: " << id << std::endl;
     callback();
   }
+
+  std::cout << "=== Exiting callback ===" << std::endl;
 }
 
 std::thread::id Thread::GetThreadId() const {
@@ -171,14 +186,42 @@ bool Thread::CheckValidSetup() {
 }
 
 void Thread::RunFunc() {
+  
+  auto thread_id = GetThreadId();
+  //std::cout << "=== Thread launched with id => " << thread_id << " ===" << std::endl;
+  //std::cout << "=== Inside RunFunc with id ==> " << thread_id << " ===" << std::endl;
+  
+  std::stringstream msg;
+  msg << "=== [" << thread_id <<"] => Inside RunFunc ===" << "\n"; 
+  std::cout << msg.str();
+  
+  //msg.str("");
+  //msg << "=== [" << thread_id <<"] => Before Callback(STARTED_CALLBACK) ===" << "\n";
+  //std::cout << msg.str();
   Callback(STARTED_CALLBACK);
+  //msg.str("");
+  //msg << "=== [" << thread_id <<"] => After Callback(STARTED_CALLBACK) ===" << "\n";
+  //std::cout << msg.str();
+
   Run();
+  
   {
     std::unique_lock<std::mutex> lock(mutex_);
     finished_ = true;
+    std::cout << "Finished thread with id: " << thread_id << std::endl;
     timer_.Pause();
   }
+  
+  //msg.str("");
+  //msg << "=== [" << thread_id <<"] => Before Callback(FINISHED_CALLBACK) ===" << "\n";
+  //std::cout << msg.str();
   Callback(FINISHED_CALLBACK);
+  //msg.str("");
+  //msg << "=== [" << thread_id <<"] => After Callback(FINISHED_CALLBACK) ===" << "\n";
+  //std::cout << msg.str();
+
+  //msg.str("");
+  //msg << "=== [" << thread_id <<"] => Exiting RunFunc ===" << "\n";
 }
 
 ThreadPool::ThreadPool(const int num_threads)

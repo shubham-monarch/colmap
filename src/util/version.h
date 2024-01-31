@@ -26,49 +26,25 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+//
+// Author: Johannes L. Schoenberger (jsch-at-demuc-dot-de)
 
-#include "colmap/util/logging.h"
+#ifndef COLMAP_SRC_UTIL_VERSION_H_
+#define COLMAP_SRC_UTIL_VERSION_H_
+
+#include "misc.h"
 
 namespace colmap {
 
-void InitializeGlog(char** argv) {
-#ifndef _MSC_VER  // Broken in MSVC
-  google::InstallFailureSignalHandler();
-#endif
-  google::InitGoogleLogging(argv[0]);
-  
-  std::cout << "=== ************************** ===" << std::endl;
-  std::cout << "=== Setting Google FLAGS level ===" << std::endl;
-  std::cout << "=== ************************** ===" << std::endl;
-  
-  FLAGS_minloglevel  = google::INFO;
-  FLAGS_colorlogtostderr = true;
-  FLAGS_logtostderr = true;
-  FLAGS_alsologtostderr = true; 
+const static std::string COLMAP_VERSION = "3.8";
+const static int COLMAP_VERSION_NUMBER = 3800;
+const static std::string COLMAP_COMMIT_ID = "43de802c";
+const static std::string COLMAP_COMMIT_DATE = "2023-01-31";
 
-}
+std::string GetVersionInfo();
 
-const char* __GetConstFileBaseName(const char* file) {
-  const char* base = strrchr(file, '/');
-  if (!base) {
-    base = strrchr(file, '\\');
-  }
-  return base ? (base + 1) : file;
-}
-
-bool __CheckOptionImpl(const char* file,
-                       const int line,
-                       const bool result,
-                       const char* expr_str) {
-  if (result) {
-    return true;
-  } else {
-    LOG(ERROR) << StringPrintf("[%s:%d] Check failed: %s",
-                               __GetConstFileBaseName(file),
-                               line,
-                               expr_str);
-    return false;
-  }
-}
+std::string GetBuildInfo();
 
 }  // namespace colmap
+
+#endif  // COLMAP_SRC_UTIL_VERSION_H_

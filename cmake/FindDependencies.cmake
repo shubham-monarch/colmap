@@ -114,6 +114,8 @@ if(CUDA_ENABLED)
     else()
         find_package(CUDAToolkit QUIET)
         if(CUDAToolkit_FOUND)
+	    message("Detected cmake_version => {CMAKE_VERSION}")
+	    message("CUDATookkit was found")
             set(CUDA_FOUND ON)
             enable_language(CUDA)
         endif()
@@ -121,6 +123,7 @@ if(CUDA_ENABLED)
 endif()
 
 if(CUDA_ENABLED AND CUDA_FOUND)
+    message("CUDA_ENABLED AND CUDA_FOUND ==> TRUE")
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
         message(
             FATAL_ERROR "You must set CMAKE_CUDA_ARCHITECTURES to e.g. 'native', 'all-major', '70', etc. "

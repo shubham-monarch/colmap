@@ -39,6 +39,12 @@ class OptionManager;
 
 class ReconstructionManager {
  public:
+
+  ReconstructionManager()
+  {
+    std::cout << " === Inside ReconstructionManager Constructor ===" << std::endl;
+  }
+
   // The number of reconstructions managed.
   size_t Size() const;
 

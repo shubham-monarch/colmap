@@ -286,15 +286,39 @@ IncrementalMapperController::IncrementalMapperController(
     : options_(std::move(options)),
       image_path_(image_path),
       database_path_(database_path),
+      //reconstruction_manager_(reconstruction_manager) {
       reconstruction_manager_(std::move(reconstruction_manager)) {
-  CHECK(options_->Check());
+  
+  std::cout << "=== IncrementalMapperController constructor ===" << std::endl;
+  
+  std::cout << "=== ************************** ===" << std::endl;
+  std::cout << "=== Setting Google FLAGS level ===" << std::endl;
+  std::cout << "=== ************************** ===" << std::endl;
+  
+  FLAGS_minloglevel  = google::INFO;
+  FLAGS_logtostderr = true;
+  FLAGS_colorlogtostderr = true;
+  //sFLAGS_alsologtostderr = true; 
+  FLAGS_log_dir = "/home/colmap_log/";
+  
+  LOG(INFO) << "Inside IncrementalMapperConstroller Constructor" << std::endl;
+  
   RegisterCallback(INITIAL_IMAGE_PAIR_REG_CALLBACK);
   RegisterCallback(NEXT_IMAGE_REG_CALLBACK);
   RegisterCallback(LAST_IMAGE_REG_CALLBACK);
 }
 
 void IncrementalMapperController::Run() {
+  
+  std::stringstream msg; 
+  msg.str("");
+  msg << "=== [" << GetThreadId() <<"] => Starting Run() ===" << "\n";
+  std::cout << msg.str(); 
+  
   if (!LoadDatabase()) {
+    msg.str("");
+    msg << "=== [" << GetThreadId() <<"] => !loadDatabase() ===" << "\n";
+    std::cout << msg.str(); 
     return;
   }
 
@@ -302,7 +326,11 @@ void IncrementalMapperController::Run() {
   Reconstruct(init_mapper_options);
 
   const size_t kNumInitRelaxations = 2;
+  //std::cout << "=== Starting the for loop ===" << std::endl;
   for (size_t i = 0; i < kNumInitRelaxations; ++i) {
+    
+    ///std::cout << "i: " << i << std::endl;
+
     if (reconstruction_manager_->Size() > 0 || IsStopped()) {
       break;
     }
@@ -321,6 +349,11 @@ void IncrementalMapperController::Run() {
   }
 
   GetTimer().PrintMinutes();
+
+  msg.str("");
+  msg << "=== [" << GetThreadId() <<"] => Returning Run() ===" << "\n";
+  std::cout << msg.str(); 
+  
 }
 
 bool IncrementalMapperController::LoadDatabase() {
@@ -358,6 +391,10 @@ void IncrementalMapperController::Reconstruct(
   //////////////////////////////////////////////////////////////////////////////
   // Main loop
   //////////////////////////////////////////////////////////////////////////////
+  std::stringstream msg;
+  msg.str("");
+  msg << "=== [" << GetThreadId() <<"] => Starting Reconstruct() ===" << "\n";
+  std::cout << msg.str();
 
   IncrementalMapper mapper(database_cache_);
 
@@ -603,6 +640,11 @@ void IncrementalMapperController::Reconstruct(
       break;
     }
   }
-}
+
+  msg.str("");
+  msg << "=== [" << GetThreadId() <<"] => Exiting Reconstruct() ===" << "\n";
+  std::cout << msg.str();
+  
+} 
 
 }  // namespace colmap
