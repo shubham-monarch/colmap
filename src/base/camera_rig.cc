@@ -128,10 +128,15 @@ const Eigen::Vector3d& CameraRig::RelativeTvec(const camera_t camera_id) const {
 double CameraRig::ComputeScale(const Reconstruction& reconstruction) const {
   CHECK_GT(NumSnapshots(), 0);
   CHECK_GT(NumCameras(), 0);
+  std::cout << "Inside ComputeScale function!" << std::endl;
   double scaling_factor = 0;
   size_t num_dists = 0;
   std::vector<Eigen::Vector3d> rel_proj_centers(NumCameras());
   std::vector<Eigen::Vector3d> abs_proj_centers(NumCameras());
+
+  std::cout << "snapshots.size(): " << (int)snapshots_.size() << std::endl; 
+  std::cout << "num_cameras: " << NumCameras() << std::endl;
+  
   for (const auto& snapshot : snapshots_) {
     // Compute the projection relative and absolute projection centers.
     for (size_t i = 0; i < NumCameras(); ++i) {

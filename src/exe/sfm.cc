@@ -133,6 +133,7 @@ int RunAutomaticReconstructor(int argc, char** argv) {
 }
 
 int RunBundleAdjuster(int argc, char** argv) {
+  
   std::string input_path;
   std::string output_path;
 
@@ -158,6 +159,9 @@ int RunBundleAdjuster(int argc, char** argv) {
   BundleAdjustmentController ba_controller(options, &reconstruction);
   ba_controller.Start();
   ba_controller.Wait();
+
+
+
 
   reconstruction.Write(output_path);
 
@@ -662,6 +666,8 @@ std::vector<CameraRig> ReadCameraRigConfig(const std::string& rig_config_path,
 }  // namespace
 
 int RunRigBundleAdjuster(int argc, char** argv) {
+  
+  PrintHeading1("Called RigBundleAdjuster!");
   std::string input_path;
   std::string output_path;
   std::string rig_config_path;
@@ -709,6 +715,11 @@ int RunRigBundleAdjuster(int argc, char** argv) {
   ba_options.solver_options.minimizer_progress_to_stdout = true;
   RigBundleAdjuster bundle_adjuster(ba_options, rig_ba_options, config);
   CHECK(bundle_adjuster.Solve(&reconstruction, &camera_rigs));
+  
+  
+  SimilarityTransform3 tform(11.63, ComposeIdentityQuaternion(), Eigen::Vector3d::Zero());
+  reconstruction.Transform(tform);
+  
 
   reconstruction.Write(output_path);
 

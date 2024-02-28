@@ -797,6 +797,9 @@ bool RigBundleAdjuster::Solve(Reconstruction* reconstruction,
   CHECK_NOTNULL(camera_rigs);
   CHECK(!problem_) << "Cannot use the same BundleAdjuster multiple times";
 
+  std::cout << "camera_rigs->size() inside the RBA::solve(): " << camera_rigs->size() << std::endl; 
+  //PrintHeading2("camera_rigs->size() inside the RBA::Solve(): %d", camera_rigs->size());
+
   // Check the validity of the provided camera rigs.
   std::unordered_set<camera_t> rig_camera_ids;
   for (auto& camera_rig : *camera_rigs) {
@@ -871,6 +874,28 @@ bool RigBundleAdjuster::Solve(Reconstruction* reconstruction,
 void RigBundleAdjuster::SetUp(Reconstruction* reconstruction,
                               std::vector<CameraRig>* camera_rigs,
                               ceres::LossFunction* loss_function) {
+  
+  // ============== SCALE INFORMATION ==================
+ // PrintHeading2("camera_rigs->size() inside the RBA::SetUp: %d", camera_rigs->size());
+  std::cout << "camera_rigs->size() inside the RBA::SetUp: " << camera_rigs->size() << std::endl;
+  double scale = 0.;
+  for (const auto& camera_rig : *camera_rigs) {
+    std::cout << "Inside the camera_rig looop!" << std::endl;
+    double s = camera_rig.ComputeScale(*reconstruction);
+    std::cout << "camera_rig.ComputeScale: " << s << std::endl;
+    scale += s;
+  }
+
+  scale /= camera_rigs->size();
+
+  PrintHeading2(StringPrintf("Rescale reconstruction: %.3f", scale));
+  SimilarityTransform3 tform(scale, ComposeIdentityQuaternion(), Eigen::Vector3d::Zero());
+  reconstruction->Transform(tform);
+  
+  // ===================================================
+  
+
+  
   ComputeCameraRigPoses(*reconstruction, *camera_rigs);
 
   for (const image_t image_id : config_.Images()) {
