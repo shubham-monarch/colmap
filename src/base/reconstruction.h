@@ -72,8 +72,11 @@ class Reconstruction {
 
   Reconstruction();
 
+  
   // Get number of objects.
   inline size_t NumCameras() const;
+  inline size_t NumCameras_() const;
+  
   inline size_t NumImages() const;
   inline size_t NumRegImages() const;
   inline size_t NumPoints3D() const;
@@ -112,6 +115,9 @@ class Reconstruction {
   inline bool ExistsPoint3D(const point3D_t point3D_id) const;
   inline bool ExistsImagePair(const image_pair_t pair_id) const;
 
+  inline void updateImagePriors();
+
+
   // Load data from given `DatabaseCache`.
   void Load(const DatabaseCache& database_cache);
 
@@ -142,7 +148,7 @@ class Reconstruction {
   // Add observation to existing 3D point.
   void AddObservation(const point3D_t point3D_id, const TrackElement& track_el);
 
-  // Merge two 3D points and return new identifier of new 3D point.
+    // Merge two 3D points and return new identifier of new 3D point.
   // The location of the merged 3D point is a weighted average of the two
   // original 3D point's locations according to their track lengths.
   point3D_t MergePoints3D(const point3D_t point3D_id1,
@@ -385,6 +391,7 @@ class Reconstruction {
   // Create all image sub-directories in the given path.
   void CreateImageDirs(const std::string& path) const;
 
+  
  private:
   size_t FilterPoints3DWithSmallTriangulationAngle(
       const double min_tri_angle,
@@ -436,7 +443,22 @@ class Reconstruction {
 // Implementation
 ////////////////////////////////////////////////////////////////////////////////
 
+
+void Reconstruction::updateImagePriors()
+{
+  for (auto& map_ : images_)
+  {
+    class Image &img = map_.second;
+    img.SetQvecPrior(Eigen::Vector4d(0, 0, 0, 1));
+    img.SetTvecPrior(Eigen::Vector3d(0, 0, 0));
+  }  
+}
+
 size_t Reconstruction::NumCameras() const { return cameras_.size(); }
+
+size_t Reconstruction::NumCameras_() const { return cameras_.size(); }
+
+
 
 size_t Reconstruction::NumImages() const { return images_.size(); }
 
@@ -501,6 +523,17 @@ const EIGEN_STL_UMAP(camera_t, Camera) & Reconstruction::Cameras() const {
 const EIGEN_STL_UMAP(image_t, class Image) & Reconstruction::Images() const {
   return images_;
 }
+
+/*EIGEN_STL_UMAP(image_t, class Image) & Reconstruction::Images()  {
+  return images_;
+}*/
+
+
+
+/*EIGEN_STL_UMAP(image_t, class Image) & Reconstruction::Images() {
+  return images_;
+}*/
+
 
 const std::vector<image_t>& Reconstruction::RegImageIds() const {
   return reg_image_ids_;

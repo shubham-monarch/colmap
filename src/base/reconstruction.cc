@@ -162,6 +162,8 @@ void Reconstruction::AddImage(class Image image) {
   CHECK(images_.emplace(image_id, std::move(image)).second);
 }
 
+
+
 point3D_t Reconstruction::AddPoint3D(const Eigen::Vector3d& xyz, Track track,
                                      const Eigen::Vector3ub& color) {
   const point3D_t point3D_id = ++num_added_points3D_;
