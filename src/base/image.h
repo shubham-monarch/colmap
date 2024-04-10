@@ -176,6 +176,7 @@ class Image {
 
   // Normalize the quaternion vector.
   void NormalizeQvec();
+  void NormalizeQvecPrior();
 
   // Compose the projection matrix from world to image space.
   Eigen::Matrix3x4d ProjectionMatrix() const;

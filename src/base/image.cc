@@ -135,6 +135,9 @@ void Image::DecrementCorrespondenceHasPoint3D(const point2D_t point2D_idx) {
 
 void Image::NormalizeQvec() { qvec_ = NormalizeQuaternion(qvec_); }
 
+void Image::NormalizeQvecPrior() { qvec_prior_ = NormalizeQuaternion(qvec_prior_); }
+
+
 Eigen::Matrix3x4d Image::ProjectionMatrix() const {
   return ComposeProjectionMatrix(qvec_, tvec_);
 }

@@ -677,6 +677,7 @@ bool IncrementalMapper::AdjustGlobalBundle(
 
   // Avoid degeneracies in bundle adjustment.
   reconstruction_->FilterObservationsWithNegativeDepth();
+  reconstruction_->updateImagePriors();
 
   // Configure bundle adjustment.
   BundleAdjustmentConfig ba_config;

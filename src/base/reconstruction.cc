@@ -1781,6 +1781,16 @@ void Reconstruction::ReadImagesBinary(const std::string& path) {
     class Image image;
 
     image.SetImageId(ReadBinaryLittleEndian<image_t>(&file));
+    
+    image.QvecPrior(0) = ReadBinaryLittleEndian<double>(&file);
+    image.QvecPrior(1) = ReadBinaryLittleEndian<double>(&file);
+    image.QvecPrior(2) = ReadBinaryLittleEndian<double>(&file);
+    image.QvecPrior(3) = ReadBinaryLittleEndian<double>(&file);
+    image.NormalizeQvecPrior();
+
+    image.TvecPrior(0) = ReadBinaryLittleEndian<double>(&file);
+    image.TvecPrior(1) = ReadBinaryLittleEndian<double>(&file);
+    image.TvecPrior(2) = ReadBinaryLittleEndian<double>(&file);
 
     image.Qvec(0) = ReadBinaryLittleEndian<double>(&file);
     image.Qvec(1) = ReadBinaryLittleEndian<double>(&file);
@@ -1791,6 +1801,9 @@ void Reconstruction::ReadImagesBinary(const std::string& path) {
     image.Tvec(0) = ReadBinaryLittleEndian<double>(&file);
     image.Tvec(1) = ReadBinaryLittleEndian<double>(&file);
     image.Tvec(2) = ReadBinaryLittleEndian<double>(&file);
+
+
+
 
     image.SetCameraId(ReadBinaryLittleEndian<camera_t>(&file));
 
@@ -2028,7 +2041,19 @@ void Reconstruction::WriteImagesBinary(const std::string& path) const {
 
     WriteBinaryLittleEndian<image_t>(&file, image.first);
 
-    const Eigen::Vector4d normalized_qvec =
+    const Eigen::Vector4d qvec_prior =
+        NormalizeQuaternion(image.second.QvecPrior());
+    WriteBinaryLittleEndian<double>(&file, qvec_prior(0));
+    WriteBinaryLittleEndian<double>(&file, qvec_prior(1));
+    WriteBinaryLittleEndian<double>(&file, qvec_prior(2));
+    WriteBinaryLittleEndian<double>(&file, qvec_prior(3));
+
+    const Eigen::Vector3d tvec_prior = image.second.TvecPrior();
+    WriteBinaryLittleEndian<double>(&file, tvec_prior(0));
+    WriteBinaryLittleEndian<double>(&file, tvec_prior(1));
+    WriteBinaryLittleEndian<double>(&file, tvec_prior(2));
+    
+     const Eigen::Vector4d normalized_qvec =
         NormalizeQuaternion(image.second.Qvec());
     WriteBinaryLittleEndian<double>(&file, normalized_qvec(0));
     WriteBinaryLittleEndian<double>(&file, normalized_qvec(1));
@@ -2052,6 +2077,7 @@ void Reconstruction::WriteImagesBinary(const std::string& path) const {
     }
   }
 }
+
 
 void Reconstruction::WritePoints3DBinary(const std::string& path) const {
   std::ofstream file(path, std::ios::trunc | std::ios::binary);
