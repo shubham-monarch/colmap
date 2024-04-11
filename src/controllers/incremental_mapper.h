@@ -172,6 +172,16 @@ class IncrementalMapperController : public Thread {
                               const std::string& database_path,
                               ReconstructionManager* reconstruction_manager);
 
+
+  IncrementalMapperController(const IncrementalMapperOptions* options,
+                              const std::string& image_path,
+                              const std::string& database_path,
+                              const std::string& gps_priors_path,
+                              ReconstructionManager* reconstruction_manager);
+
+                              
+                            
+
  private:
   void Run();
   bool LoadDatabase();
@@ -180,6 +190,7 @@ class IncrementalMapperController : public Thread {
   const IncrementalMapperOptions* options_;
   const std::string image_path_;
   const std::string database_path_;
+  const std::string gps_priors_path_;
   ReconstructionManager* reconstruction_manager_;
   DatabaseCache database_cache_;
 };

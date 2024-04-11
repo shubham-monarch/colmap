@@ -315,6 +315,23 @@ IncrementalMapperController::IncrementalMapperController(
   RegisterCallback(LAST_IMAGE_REG_CALLBACK);
 }
 
+IncrementalMapperController::IncrementalMapperController(
+    const IncrementalMapperOptions* options, const std::string& image_path,
+    const std::string& database_path,
+    const std::string& gps_priors_path,
+    ReconstructionManager* reconstruction_manager)
+    : options_(options),
+      image_path_(image_path),
+      database_path_(database_path),
+      gps_priors_path_(gps_priors_path),
+      reconstruction_manager_(reconstruction_manager) {
+  CHECK(options_->Check());
+  RegisterCallback(INITIAL_IMAGE_PAIR_REG_CALLBACK);
+  RegisterCallback(NEXT_IMAGE_REG_CALLBACK);
+  RegisterCallback(LAST_IMAGE_REG_CALLBACK);
+}
+
+
 void IncrementalMapperController::Run() {
   if (!LoadDatabase()) {
     return;
