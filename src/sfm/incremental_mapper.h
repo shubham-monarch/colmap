@@ -145,6 +145,9 @@ class IncrementalMapper {
   // life-time of the incremental mapper.
   explicit IncrementalMapper(const DatabaseCache* database_cache);
 
+  explicit IncrementalMapper(const DatabaseCache* database_cache, const std::string &gps_priors_path);
+
+
   // Prepare the mapper for a new reconstruction, which might have existing
   // registered images (in which case `RegisterNextImage` must be called) or
   // which is empty (in which case `RegisterInitialImagePair` must be called).
@@ -233,6 +236,8 @@ class IncrementalMapper {
   void ClearModifiedPoints3D();
 
  private:
+
+  const std::string gps_priors_path_;
   // Find seed images for incremental reconstruction. Suitable seed images have
   // a large number of correspondences and have camera calibration priors. The
   // returned list is ordered such that most suitable images are in the front.

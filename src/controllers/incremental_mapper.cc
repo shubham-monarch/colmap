@@ -405,8 +405,9 @@ void IncrementalMapperController::Reconstruct(
   //////////////////////////////////////////////////////////////////////////////
   // Main loop
   //////////////////////////////////////////////////////////////////////////////
+ 
 
-  IncrementalMapper mapper(&database_cache_);
+  IncrementalMapper mapper(&database_cache_, (gps_priors_path_.empty()) ? "" : gps_priors_path_);
 
   // Is there a sub-model before we start the reconstruction? I.e. the user
   // has imported an existing reconstruction.

@@ -96,8 +96,19 @@ bool IncrementalMapper::Options::Check() const {
   return true;
 }
 
+
 IncrementalMapper::IncrementalMapper(const DatabaseCache* database_cache)
     : database_cache_(database_cache),
+      reconstruction_(nullptr),
+      triangulator_(nullptr),
+      num_total_reg_images_(0),
+      num_shared_reg_images_(0),
+      prev_init_image_pair_id_(kInvalidImagePairId) {}
+
+
+IncrementalMapper::IncrementalMapper(const DatabaseCache* database_cache, const std::string &gps_priors_path)
+    : database_cache_(database_cache),
+      gps_priors_path_(gps_priors_path),
       reconstruction_(nullptr),
       triangulator_(nullptr),
       num_total_reg_images_(0),
@@ -677,8 +688,12 @@ bool IncrementalMapper::AdjustGlobalBundle(
 
   // Avoid degeneracies in bundle adjustment.
   reconstruction_->FilterObservationsWithNegativeDepth();
-  reconstruction_->updateImagePriors();
-
+  
+  if(gps_priors_path_ != "")
+  {
+    reconstruction_->updateImagePriors(gps_priors_path_);
+  }
+  
   // Configure bundle adjustment.
   BundleAdjustmentConfig ba_config;
   for (const image_t image_id : reg_image_ids) {

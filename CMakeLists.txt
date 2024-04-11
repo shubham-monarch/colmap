@@ -110,6 +110,7 @@ find_package(Glog REQUIRED)
 
 find_package(SQLite3 REQUIRED)
 
+
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(Glew REQUIRED)
@@ -156,6 +157,7 @@ if(CUDA_ENABLED)
         endif()
     endif()
 endif()
+
 
 if(GUI_ENABLED)
     find_package(Qt5 5.4 COMPONENTS Core OpenGL Widgets)
@@ -364,6 +366,18 @@ set(COLMAP_LINK_DIRS
     ${Boost_LIBRARY_DIRS}
 )
 
+include_directories(/usr/include)
+
+find_library(CNPY_LIBRARIES   
+             NAMES cnpy
+             PATHS /usr/lib /usr/local/lib)
+
+if(NOT CNPY_LIBRARIES)
+    message(FATAL_ERROR "cnpy library not found" )
+else()
+    message(STATUS "cnpy library found at ${CNPY_LIBRARY} ")
+endif()
+
 set(COLMAP_EXTERNAL_LIBRARIES
     ${CMAKE_DL_LIBS}
     ${Boost_FILESYSTEM_LIBRARY}
@@ -377,6 +391,7 @@ set(COLMAP_EXTERNAL_LIBRARIES
     ${CERES_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${SQLite3_LIBRARIES}
+    ${CNPY_LIBRARIES}    
 )
 
 if(OPENMP_FOUND)

@@ -51,6 +51,8 @@
 #include "util/alignment.h"
 #include "util/types.h"
 
+#include <cnpy.h>
+
 namespace colmap {
 
 struct PlyPoint;
@@ -116,7 +118,7 @@ class Reconstruction {
   inline bool ExistsImagePair(const image_pair_t pair_id) const;
 
   inline void updateImagePriors();
-
+  inline void updateImagePriors(const std::string &path_);
 
   // Load data from given `DatabaseCache`.
   void Load(const DatabaseCache& database_cache);
@@ -453,6 +455,61 @@ void Reconstruction::updateImagePriors()
     img.SetTvecPrior(Eigen::Vector3d(0, 0, 0));
   }  
 }
+
+void Reconstruction::updateImagePriors(const std::string &path)
+{
+  
+  //PrintHeading1("updateImagePriors!");
+  std::cout << "==================================================" << std::endl;
+  std::cout << "============ updateImagePriors ===================" << std::endl;
+  std::cout << "==================================================" << std::endl;
+  
+  for(auto &t : images_)
+  { 
+    const image_t image_id = t.first;
+    const std::string &file_name = std::to_string(image_id) + ".npy";
+    std::cout << "image_id: "   << image_id << " file_name: " << file_name << std::endl;
+
+
+    // loading data from file
+    cnpy::NpyArray arr = cnpy::npy_load(file_name);
+    double* loaded_data = arr.data<double>();
+
+    // Assuming the matrix is 4x4
+    int rows = 4;
+    int cols = 4;
+
+    // Create an Eigen matrix and load the data
+    Eigen::MatrixXd mat(rows, cols);
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            mat(i, j) = loaded_data[i * cols + j];
+        }
+    }
+
+    std::cout << "==================================================" << std::endl;
+    std::cout  << "mat: " << mat << std::endl;  
+    std::cout << "==================================================" << std::endl;
+
+    const Eigen::Matrix3d &rotation_matrix = mat.block<3,3>(0, 0);
+    Eigen::Quaterniond quaternion(rotation_matrix);
+    quaternion.normalize();
+    const Eigen::Vector4d &qvec = quaternion.coeffs();
+
+    // Extract the translation vector
+    const Eigen::Vector3d &tvec = mat.col(3).head<3>();
+
+    // updating the prior values
+    class Image &img = t.second;
+    img.SetQvecPrior(qvec);
+    img.SetTvecPrior(tvec);
+    
+
+    std::cout << "Updated priors for image #" << image_id << std::endl;
+  }
+}
+
+
 
 size_t Reconstruction::NumCameras() const { return cameras_.size(); }
 
