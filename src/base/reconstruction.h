@@ -51,7 +51,8 @@
 #include "util/alignment.h"
 #include "util/types.h"
 
-#include <cnpy.h>
+// /#include <cnpy.h>
+#include <fstream>
 
 namespace colmap {
 
@@ -467,36 +468,26 @@ void Reconstruction::updateImagePriors(const std::string &path)
   for(auto &t : images_)
   { 
     const image_t image_id = t.first;
-    const std::string &file_name = std::to_string(image_id) + ".npy";
+    const std::string file_name = "/home/skumar" + "/sm /exif/"   + std::to_string(image_id) + ".txt";
     std::cout << "image_id: "   << image_id << " file_name: " << file_name << std::endl;
 
-
-    // loading data from file
-    cnpy::NpyArray arr = cnpy::npy_load(file_name);
-    double* loaded_data = arr.data<double>();
-
-    // Assuming the matrix is 4x4
-    int rows = 4;
-    int cols = 4;
-
-    // Create an Eigen matrix and load the data
-    Eigen::MatrixXd mat(rows, cols);
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            mat(i, j) = loaded_data[i * cols + j];
-        }
+    std::ifstream file(file_name);
+    Eigen::MatrixXd mat(4, 4);
+    for (int i = 0; i < 4; ++i) {
+      for (int j = 0; j < 4; ++j) {
+          file >> mat(i, j);
+      }
     }
 
     std::cout << "==================================================" << std::endl;
-    std::cout  << "mat: " << mat << std::endl;  
+    std::cout  << "mat: " << mat << std::endl;
     std::cout << "==================================================" << std::endl;
 
     const Eigen::Matrix3d &rotation_matrix = mat.block<3,3>(0, 0);
     Eigen::Quaterniond quaternion(rotation_matrix);
     quaternion.normalize();
     const Eigen::Vector4d &qvec = quaternion.coeffs();
-
-    // Extract the translation vector
+    
     const Eigen::Vector3d &tvec = mat.col(3).head<3>();
 
     // updating the prior values
@@ -504,7 +495,6 @@ void Reconstruction::updateImagePriors(const std::string &path)
     img.SetQvecPrior(qvec);
     img.SetTvecPrior(tvec);
     
-
     std::cout << "Updated priors for image #" << image_id << std::endl;
   }
 }

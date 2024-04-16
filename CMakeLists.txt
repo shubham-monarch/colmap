@@ -366,7 +366,7 @@ set(COLMAP_LINK_DIRS
     ${Boost_LIBRARY_DIRS}
 )
 
-include_directories(/usr/include)
+include_directories(/usr/local/include)
 
 find_library(CNPY_LIBRARIES   
              NAMES cnpy
