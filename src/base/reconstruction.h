@@ -468,33 +468,51 @@ void Reconstruction::updateImagePriors(const std::string &path)
   for(auto &t : images_)
   { 
     const image_t image_id = t.first;
-    const std::string file_name = "/home/skumar" + "/sm /exif/"   + std::to_string(image_id) + ".txt";
+    const std::string file_name = std::string("/home/skumar/exif_txt/") + std::to_string(image_id) + ".txt";
     std::cout << "image_id: "   << image_id << " file_name: " << file_name << std::endl;
 
-    std::ifstream file(file_name);
+    std::ifstream infile(file_name);
+
     Eigen::MatrixXd mat(4, 4);
-    for (int i = 0; i < 4; ++i) {
-      for (int j = 0; j < 4; ++j) {
-          file >> mat(i, j);
-      }
+
+
+    // Check if the file is opened successfully
+    if (!infile.is_open()) {
+        std::cerr << "Error opening file!" << std::endl;
+        return;
     }
 
+    for (int i = 0; i < 4; ++i) {
+        std::string line;
+        std::getline(infile, line);
+
+        std::istringstream iss(line);
+        for (int j = 0; j < 4; ++j) {
+            iss >> mat(i,j);
+        }
+    }
+
+    // Close the file
+    infile.close();
+    
+    
+    
+    
     std::cout << "==================================================" << std::endl;
-    std::cout  << "mat: " << mat << std::endl;
+    std::cout << "mat: " << mat << std::endl;
     std::cout << "==================================================" << std::endl;
 
-    const Eigen::Matrix3d &rotation_matrix = mat.block<3,3>(0, 0);
+    /*const Eigen::Matrix3d &rotation_matrix = mat.block<3,3>(0, 0);
     Eigen::Quaterniond quaternion(rotation_matrix);
     quaternion.normalize();
     const Eigen::Vector4d &qvec = quaternion.coeffs();
-    
     const Eigen::Vector3d &tvec = mat.col(3).head<3>();
 
     // updating the prior values
     class Image &img = t.second;
     img.SetQvecPrior(qvec);
     img.SetTvecPrior(tvec);
-    
+    */
     std::cout << "Updated priors for image #" << image_id << std::endl;
   }
 }
