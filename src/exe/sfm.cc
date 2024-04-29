@@ -579,6 +579,8 @@ namespace {
 std::vector<CameraRig> ReadCameraRigConfig(const std::string& rig_config_path,
                                            const Reconstruction& reconstruction,
                                            bool estimate_rig_relative_poses) {
+  
+  std::cout << "Inside ReadCCameraRigConfig!" << std::endl;
   boost::property_tree::ptree pt;
   boost::property_tree::read_json(rig_config_path.c_str(), pt);
 
@@ -589,15 +591,24 @@ std::vector<CameraRig> ReadCameraRigConfig(const std::string& rig_config_path,
     std::vector<std::string> image_prefixes;
     for (const auto& camera : rig_config.second.get_child("cameras")) {
       const int camera_id = camera.second.get<int>("camera_id");
-      image_prefixes.push_back(camera.second.get<std::string>("image_prefix"));
+      const std::string &image_prefix = camera.second.get<std::string>("image_prefix");
+      
+      std::cout << "[" << camera_id << "] [" << image_prefix << "]" << std::endl;
+      
+      image_prefixes.push_back(image_prefix);
       Eigen::Vector3d rel_tvec;
       Eigen::Vector4d rel_qvec;
       int index = 0;
       auto rel_tvec_node = camera.second.get_child_optional("rel_tvec");
       if (rel_tvec_node) {
+        std::cout << "tvec: [ ";
         for (const auto& node : rel_tvec_node.get()) {
-          rel_tvec[index++] = node.second.get_value<double>();
+          double value = node.second.get_value<double>();
+          rel_tvec[index++] = value;
+          std::cout << value << " ";
         }
+        std::cout << "]" << std::endl;
+      
       } else {
         estimate_rig_relative_poses = true;
       }
@@ -662,6 +673,9 @@ std::vector<CameraRig> ReadCameraRigConfig(const std::string& rig_config_path,
 }  // namespace
 
 int RunRigBundleAdjuster(int argc, char** argv) {
+  
+  PrintHeading1("Inside RunRigBundleAdjuster!");
+  
   std::string input_path;
   std::string output_path;
   std::string rig_config_path;
@@ -696,7 +710,10 @@ int RunRigBundleAdjuster(int argc, char** argv) {
               << std::endl;
     std::cout << StringPrintf("Snapshots: %d", camera_rig.NumSnapshots())
               << std::endl;
-
+    std::cout << StringPrintf("Scale: %d", camera_rig.ComputeScale(reconstruction))
+              << std::endl;
+    
+    
     // Add all registered images to the bundle adjustment configuration.
     for (const auto image_id : reconstruction.RegImageIds()) {
       config.AddImage(image_id);

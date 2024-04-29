@@ -194,7 +194,10 @@ BOOST_AUTO_TEST_CASE(TestComputeScale) {
   camera_rig.SetRefCameraId(0);
   camera_rig.Check(reconstruction);
 
-  BOOST_CHECK_EQUAL(camera_rig.ComputeScale(reconstruction), 2.0);
+  double scale =  camera_rig.ComputeScale(reconstruction) ;
+  std::cout << scale << std::endl;
+  ///BOOST_CHECK_EQUAL(camera_rig.ComputeScale(reconstruction), 2.0);
+  BOOST_CHECK_EQUAL(scale, 2.0);
 
   reconstruction.Image(1).SetTvec(Eigen::Vector3d(0, 0, 0));
   BOOST_CHECK(IsNaN(camera_rig.ComputeScale(reconstruction)));
