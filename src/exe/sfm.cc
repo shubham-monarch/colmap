@@ -710,14 +710,17 @@ int RunRigBundleAdjuster(int argc, char** argv) {
               << std::endl;
     std::cout << StringPrintf("Snapshots: %d", camera_rig.NumSnapshots())
               << std::endl;
-    std::cout << StringPrintf("Scale: %d", camera_rig.ComputeScale(reconstruction))
-              << std::endl;
     
     
     // Add all registered images to the bundle adjustment configuration.
     for (const auto image_id : reconstruction.RegImageIds()) {
       config.AddImage(image_id);
     }
+
+    std::cout << StringPrintf("Scale: %d", camera_rig.ComputeScale(reconstruction))
+              << std::endl;
+    
+
   }
 
   PrintHeading1("Rig bundle adjustment");
