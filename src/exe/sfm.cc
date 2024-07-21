@@ -708,7 +708,10 @@ int RunRigBundleAdjuster(int argc, char** argv) {
   BundleAdjustmentOptions ba_options = *options.bundle_adjustment;
   ba_options.solver_options.minimizer_progress_to_stdout = true;
   RigBundleAdjuster bundle_adjuster(ba_options, rig_ba_options, config);
-  CHECK(bundle_adjuster.Solve(&reconstruction, &camera_rigs));
+  // CHECK(bundle_adjuster.Solve(&reconstruction, &camera_rigs));
+  if(!bundle_adjuster.Solve(&reconstruction, &camera_rigs)){
+    return EXIT_FAILURE;
+  }
 
   reconstruction.Write(output_path);
 

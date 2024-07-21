@@ -854,6 +854,11 @@ bool RigBundleAdjuster::Solve(Reconstruction* reconstruction,
 
   ceres::Solve(solver_options, problem_.get(), &summary_);
 
+  if(summary_.termination_type != ceres::CONVERGENCE){
+    std::cout << "Bundle adjustment did not converge" << std::endl;
+    return false;
+  }
+  
   if (solver_options.minimizer_progress_to_stdout) {
     std::cout << std::endl;
   }
