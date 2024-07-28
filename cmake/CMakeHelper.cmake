@@ -55,6 +55,10 @@ set(COLMAP_SRC_ROOT_FOLDER "colmap_sources")
 #     <output variable with found source files>
 #     <search expressions such as *.h *.cc>)
 macro(COLMAP_ADD_SOURCE_DIR SRC_DIR SRC_VAR)
+    message("\n============================")
+    message("COLMAP_ADD_SOURCE_DIR macro called with: ${SRC_DIR} ${SRC_VAR}")
+    message("============================\n")
+
     # Create the list of expressions to be used in the search.
     set(GLOB_EXPRESSIONS "")
     foreach(ARG ${ARGN})

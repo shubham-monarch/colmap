@@ -122,8 +122,21 @@ if(CGAL_ENABLED)
     find_package(CGAL QUIET)
 endif()
 
+
 set(CUDA_MIN_VERSION "7.0")
 if(CUDA_ENABLED)
+    
+    # message("\n============================")
+    # message("[Before updating] --> CMAKE_LIBRARY_PATH: ${CMAKE_LIBRARY_PATH}")
+    # message("============================\n")
+
+    # # set(CMAKE_LIBRARY_PATH "/usr/local/cuda/targets/x86_64-linux/lib")
+    
+    # message("\n============================")
+    # message("[After updating] --> CMAKE_LIBRARY_PATH: ${CMAKE_LIBRARY_PATH}")
+    # message("============================\n")
+
+
     if(CMAKE_VERSION VERSION_LESS 3.17)
         find_package(CUDA QUIET)
         if(CUDA_FOUND)
@@ -149,8 +162,31 @@ if(CUDA_ENABLED)
             set(CUDAToolkit_BIN_DIR "${CUDA_TOOLKIT_ROOT_DIR}/bin")
         endif()
     else()
+        message("\n============================")
+        message("CMake >= 3.17 detected")
+        message("============================\n")
+        
         find_package(CUDAToolkit QUIET)
         if(CUDAToolkit_FOUND)
+            
+            # Include CUDA directories
+            include_directories(${CUDAToolkit_INCLUDE_DIRS})
+            message("\n============================")
+            message("CUDAToolkit_INCLUDE_DIRS: ${CUDAToolkit_INCLUDE_DIRS}")
+            message("============================")
+            # Prioritize CUDA library paths (if necessary)
+            link_directories(${CUDAToolkit_LIBRARY_DIR})
+
+            # message("\n============================")
+            # get_directory_property(link_dirs LINK_DIRECTORIES)
+            # foreach(dir ${link_dirs})
+            #     message(STATUS "Linked dir='${dir}'")
+            # endforeach()
+            # message("============================")
+            
+            message("\n============================")
+            message("CUDA Version: ${CUDAToolkit_VERSION} found at ${CUDAToolkit_ROOT} or ${CUDAToolkit_TARGET_DIR}")
+            message("============================")
             set(CUDA_FOUND ON)
             enable_language(CUDA)
         endif()
@@ -258,8 +294,7 @@ if(CUDA_ENABLED AND CUDA_FOUND)
     endif()
 
     add_definitions("-DCUDA_ENABLED")
-
-    # Fix for some combinations of CUDA and GCC (e.g. under Ubuntu 16.04).
+   # Fix for some combinations of CUDA and GCC (e.g. under Ubuntu 16.04).
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -D_FORCE_INLINES")
     # Do not show warnings if the architectures are deprecated.
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
@@ -343,7 +378,6 @@ endif()
 ################################################################################
 # Add sources
 ################################################################################
-
 # Generate source file with version definitions.
 include(GenerateVersionDefinitions)
 
@@ -358,10 +392,12 @@ set(COLMAP_INCLUDE_DIRS
     ${METIS_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${SQLite3_INCLUDE_DIRS}
+    ${CUDAToolkit_INCLUDE_DIRS}
 )
 
 set(COLMAP_LINK_DIRS
     ${Boost_LIBRARY_DIRS}
+    ${CUDAToolkit_LIBRARY_DIR}
 )
 
 set(COLMAP_EXTERNAL_LIBRARIES
@@ -418,6 +454,7 @@ add_subdirectory(lib)
 add_subdirectory(src)
 
 
+
 ################################################################################
 # Generate source groups for Visual Studio, XCode, etc.
 ################################################################################
@@ -464,6 +501,8 @@ add_library(
     ${UI_SRCS}
     ${UTIL_SRCS}
 )
+
+
 
 # Prevent the library from being compiled automatically.
 set_target_properties(
@@ -518,3 +557,4 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeUninstall.cmake.in"
                IMMEDIATE @ONLY)
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/CMakeUninstall.cmake)
 set_target_properties(uninstall PROPERTIES FOLDER ${CMAKE_TARGETS_ROOT_FOLDER})
+
