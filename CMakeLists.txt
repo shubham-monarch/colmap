@@ -151,6 +151,11 @@ if(CUDA_ENABLED)
     else()
         find_package(CUDAToolkit QUIET)
         if(CUDAToolkit_FOUND)
+            
+            message("=======================================")
+            message("CUDAToolkit_LIBRARY_DIR: ${CUDAToolkit_LIBRARY_DIR}")
+            message("=======================================")
+            
             set(CUDA_FOUND ON)
             enable_language(CUDA)
         endif()

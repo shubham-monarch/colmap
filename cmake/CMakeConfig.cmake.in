@@ -161,6 +161,7 @@ set(COLMAP_INCLUDE_DIRS
 )
 
 set(COLMAP_LINK_DIRS
+    ${CUDAToolkit_LIBRARY_DIR}
     ${COLMAP_INSTALL_PREFIX}/lib/colmap
     ${Boost_LIBRARY_DIRS}
 )
